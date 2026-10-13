@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alterlit — финансы (dev)</title>
+    <!-- на сайте эти шрифты уже подключены -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* имитация основной колонки сайта: ширина контента и брейкпоинты --wrap-width */
+      :root { --wrap-width: 900px; --aside-width: 350px; }
+      @media (max-width: 1300px) { :root { --wrap-width: 800px; --aside-width: 280px; } }
+      @media (max-width: 1100px) { :root { --wrap-width: 720px; } }
+      @media (max-width: 1024px) { :root { --wrap-width: 555px; --aside-width: 0px; } }
+      @media (max-width: 768px) { :root { --wrap-width: 465px; } }
+      @media (max-width: 600px) { :root { --wrap-width: 405px; } }
+      @media (max-width: 500px) { :root { --wrap-width: calc(100% - 34px); } }
+      html, body { margin: 0; background: #fdf8ef; }
+      body { font-family: 'PT Serif', Helvetica, sans-serif; font-size: 14px; }
+      main { margin-right: var(--aside-width); min-height: 100vh; }
+      .side { position: fixed; top: 0; right: 0; width: var(--aside-width); height: 100vh; background: #203019; }
+      .dev-tools { position: fixed; left: 10px; bottom: 10px; display: flex; gap: 6px; font: 12px sans-serif; }
+      .dev-tools button { padding: 4px 8px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <!-- в dev ссылки ведут на боевой сайт -->
+      <div id="alterlit-finance" data-site="https://alterlit.ru"></div>
+    </main>
+    <aside class="side"></aside>
+    <!-- dev: имитация событий, которые на сайте пересылает блок пользователя -->
+    <div class="dev-tools">
+      <button id="dev-plus">+50 литов</button>
+      <button id="dev-minus">−20 литов</button>
+    </div>
+    <script>
+      (function () {
+        var id = 9000000, lits = null;
+        function fire(amount) {
+          var now = new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 19);
+          var t = { id: id++, currency: 'lits', amount: amount, reason: amount > 0 ? 1 : 0,
+                    reason_label: amount > 0 ? 'Операция Администратора' : 'Причина отсутствует',
+                    comment: 'dev: имитация', date: now, post: null };
+          window.dispatchEvent(new CustomEvent('alterlit:transaction', { detail: { action: 'created', transaction: t } }));
+          fetch('/api/v1/users/balance/').then(function (r) { return r.json(); }).then(function (b) {
+            lits = (lits === null ? b.lits : lits) + amount;
+            window.dispatchEvent(new CustomEvent('alterlit:balance', { detail: { lits: lits, books: b.books } }));
+          });
+        }
+        document.getElementById('dev-plus').onclick = function () { fire(50); };
+        document.getElementById('dev-minus').onclick = function () { fire(-20); };
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
