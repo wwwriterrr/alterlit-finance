@@ -69,7 +69,8 @@ export default function Finance() {
       <h1 className={s.title}>Транзакции</h1>
       <p className={s.info}>
         Тут можно пополнить кошелёк или запросить литы у Администрации. Литы начисляются активным участникам сообщества
-        на усмотрение Администрации.
+        на усмотрение Администрации. Буки — это наша внутренняя валюта для оплаты предзаказа книг, которые предлагает
+        ИД «Альтерлит».
       </p>
       <div className={s.btns}>
         <button type="button" className={s.btn} aria-haspopup="dialog" onClick={() => setAsking(true)}>
